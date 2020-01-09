@@ -18,12 +18,14 @@ const links = [
   }
 ];
 
+const client_id = 'e0d81b145f7844b8b4fc10e579daf34a';
+const client_secret = '';
+
 async function main() {
   NavBar('titulo', links);
 
   let params = qs.parse(window.location.search);
   let hasCode = !!params.code;
-
   if (hasCode) {
       let s = new Spotify()
       let response = await fetch('https://accounts.spotify.com/api/token', {
@@ -31,7 +33,7 @@ async function main() {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         },
-        body:`grant_type=authorization_code&code=${params.code}&redirect_uri=${encodeURIComponent(window.location.origin)}&client_id=${}&client_secret=${}`
+        body:`grant_type=authorization_code&code=${params.code}&redirect_uri=${encodeURIComponent(window.location.origin)}&client_id=${client_id}&client_secret=${client_secret}`
     }).then(x=>x.json())
     console.log(response);
     
@@ -42,7 +44,7 @@ async function main() {
       'user-read-currently-playing',
       'user-top-read'
     ];
-    const client_id = 'e0d81b145f7844b8b4fc10e579daf34a';
+
     const response_type = 'code';
     const redirect_uri = window.location.href;
     const query = qs.stringify(
