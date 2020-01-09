@@ -1,0 +1,30 @@
+{
+  "name": "spotify-top-100",
+  "version": "1.0.0",
+  "description": "A top 100 spotify app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel index.html"
+  },
+  "keywords": [
+    "test",
+    "falopa",
+    "javascript",
+    "spotify"
+  ],
+  "author": "Leonel Vieyra \"el mas capito\"",
+  "license": "MIT",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4",
+    "sass": "^1.24.3"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "bootstrap": "^4.4.1",
+    "jquery": "^3.4.1",
+    "popper.js": "^1.16.0",
+    "query-string": "^6.9.0",
+    "spotify-web-api-js": "^1.2.0"
+  }
+}
