@@ -12,10 +12,10 @@ function createLinks(links) {
   );
 }
 
-export const NavBar = (title, links = []) => {
+export const NavBar = (title, links = [], loggedIn = false) => {
   const nav = document.createElement('nav');
   nav.className = 'navbar navbar-expand-lg navbar-dark bg-dark';
-  const skeleton = `
+  let skeleton = `
     <a class="navbar-brand" href="#">${title || 'title'}</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -25,25 +25,36 @@ export const NavBar = (title, links = []) => {
         ${createLinks(links)}
         </ul>
     </div>`;
+    if(loggedIn) {
+    skeleton += ` <ul class="navbar-nav ml-md-auto">
+    <li class="nav-item">
+      <a class="nav-item nav-link mr-md-2" href="#" id="logout" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+        Logout
+      </a>
+    </li>
+  </ul>`;
+    }
   nav.innerHTML = skeleton;
 
   root.append(nav);
 };
 
-export const Card = () => {
-  const divContainer = document.createElement('div');
+export const Card = (title, id, description, image, rootContainer) => {
+  const divCol = document.createElement('div');
+  divCol.className = 'col';
   const skeleton = `
     <div class="card" style="width: 18rem;">
-    <img src="..." class="card-img-top" alt="...">
+    <img src="${image}" class="card-img-top" alt="...">
     <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
+      <h5 class="card-title">${title}</h5>
+      <p class="card-text">${description || ''}</p>
+      <a class="btn btn-primary"  data-toggle="modal" data-target="#${id}">Escuchar!</a>
     </div>
   </div>`;
-  divContainer.innerHTML = skeleton;
 
-  root.append(divContainer);
+  divCol.innerHTML = skeleton;
+
+  rootContainer.append(divCol);
 };
 
 export const ButtonLink = (url, text) => {
@@ -54,4 +65,36 @@ export const ButtonLink = (url, text) => {
         </div>
     `;
   root.append(frag);
+};
+
+export const ModalListTrack = (title, listTrack = [], id) => {
+  let divContainer = document.createElement('div');
+  let skeleton = `<div class="modal fade" id="${id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">${title ||
+          'Tracks'}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-items">`;
+
+  for (const track of listTrack) {
+    skeleton += `<li class="list-item"></li>`;
+  }
+
+  skeleton += `</ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>`;
+divContainer.innerHTML = skeleton;
+  root.append(divContainer);
 };
