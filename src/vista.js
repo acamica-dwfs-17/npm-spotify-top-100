@@ -1,12 +1,13 @@
-import Spotify from 'spotify-web-api-js';
+
 
 import qs from 'query-string';
 import './styles/main.scss';
 
 import { NavBar, Card, ButtonLink, ModalListTrack } from './Layout';
+
+import SpotifyClient from './SpotifyClient';
 import MyDataLocal from './MyDataLocal';
 
-const localDB = new MyDataLocal();
 
 const links = [
   {
@@ -19,83 +20,42 @@ const links = [
   }
 ];
 
-const client_id = 'e0d81b145f7844b8b4fc10e579daf34a';
-const client_secret = 'e57b801ce6ed45e885d697e4d4bd4cac';
 let TitleName = 'Spotify';
 let meUser;
 
 async function main() {
-  
-
   let params = qs.parse(window.location.search);
   let hasCode = !!params.code;
-  if (hasCode || localDB.getToken()) {
-    if (!localDB.getToken()) {
-      let s = new Spotify();
-      let response = await fetch('https://accounts.spotify.com/api/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-        },
-        body: `grant_type=authorization_code&code=${
-          params.code
-        }&redirect_uri=${encodeURIComponent(
-          window.location.origin
-        )}/&client_id=${client_id}&client_secret=${client_secret}`
-      })
-        .then(x => x.json())
-        .then(x => {
-          if(!x.error)
-            localDB.setToken(x);
-          else if (confirm('Credenciales no validas, reintentar?'))
-            window.location.reload('/');
-        })   
-     
+  let spotifyClient = new SpotifyClient();
+  if (hasCode || spotifyClient.localDB.getToken()) {
+    if (!spotifyClient.localDB.getToken()) {
+      await spotifyClient.getToken(params.code);
     }
-
-    InitData();
-    
+    InitData(spotifyClient);
   } else {
-
+    // Es la primera vez
     NavBar('Spotify', links);
-
-    const authBase = 'https://accounts.spotify.com/authorize?';
-    const scope = [
-      'user-library-read',
-      'user-read-currently-playing',
-      'user-top-read'
-    ];
-
-    const response_type = 'code';
-    const redirect_uri = window.location.href;
-    const query = qs.stringify(
-      { scope, redirect_uri, client_id, response_type },
-      { arrayFormat: 'comma' }
-    );
-
-    const url = `${authBase}${query}`;
-
+    let url = await spotifyClient.getAuthorizeLink();
     ButtonLink(url, 'Login');
   }
 }
 
-async function InitData() {
-  var token = localDB.getToken();
-  let s = new Spotify();
-  s.setAccessToken(token.access_token);
-  meUser = await s.getMe();
+async function InitData(spotifyClient) {
+  spotifyClient.setAuth();
+  meUser = await spotifyClient.api.getMe();
     
-  s.getUserPlaylists() // note that we don't pass a user id
+  spotifyClient.api.getMyTopArtists({limit:50, time_range:"medium_term"}) // note that we don't pass a user id
     .then(
       function(data) {
         if(data.items)
         {
           const divContainer = document.createElement('div');
           divContainer.className = 'container-fluid';
+          divContainer.id = 'result-id';
           const divRow = document.createElement('div');
           divRow.className = 'row';
           for (const item of data.items) {
-              Card(item.name, item.id, item.description, item.images ? item.images[0].url : '', divRow);
+              Card(item.name, item.id, item.description, item.images ? item.images[0].url : '', item.external_urls.spotify, divRow);
               ModalListTrack('Las tracks', [], item.id);
           }
 
@@ -104,17 +64,41 @@ async function InitData() {
           root.append(divContainer);
           
         }
-        console.log('User playlists', data);
       },
       function(err) {
         console.error(err);
       }
     );
-    NavBar(meUser.display_name, links, true);
+    NavBar(meUser.display_name, links, true, meUser.images.url);
 
     document.getElementById('logout').addEventListener('click', () => {
-      localDB.setToken(null);
-      window.location.reload('/');
+      spotifyClient.localDB.setToken(null);
+      window.location.href= '/';
+    });
+
+    document.getElementById('searchTerm').addEventListener('keydown', (e)=>{
+      if(e.keyCode == 13)
+        document.getElementById('search').click();
+    });
+    document.getElementById('search').addEventListener('click', () => {
+      
+      spotifyClient.setAuth();
+      let searchTerm = document.getElementById('searchTerm').value;
+
+      spotifyClient.api.search(searchTerm, ['playlist']).then(x=>x).then((data) => {
+        const divContainer = document.getElementById('result-id');
+        divContainer.innerHTML = '';
+        const divRow = document.createElement('div');
+        divRow.className = 'row';
+        for (const item of data.playlists.items) {
+            Card(item.name, item.id, item.description, item.images ? item.images[0].url : '', item.external_urls.spotify, divRow);
+        }
+
+        divContainer.append(divRow);
+        const root = document.getElementById('root');
+        root.append(divContainer);
+
+      });
     });
 }
 

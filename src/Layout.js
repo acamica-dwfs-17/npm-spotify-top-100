@@ -12,11 +12,14 @@ function createLinks(links) {
   );
 }
 
-export const NavBar = (title, links = [], loggedIn = false) => {
+export const NavBar = (title, links = [], loggedIn = false, image_url =  '') => {
   const nav = document.createElement('nav');
   nav.className = 'navbar navbar-expand-lg navbar-dark bg-dark';
   let skeleton = `
     <a class="navbar-brand" href="#">${title || 'title'}</a>
+    <a class="navbar-brand" href="#">
+    <img src="${image_url}" width="30" height="30" alt="">
+  </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -26,7 +29,10 @@ export const NavBar = (title, links = [], loggedIn = false) => {
         </ul>
     </div>`;
     if(loggedIn) {
-    skeleton += ` <ul class="navbar-nav ml-md-auto">
+    skeleton += `    <div class="form-inline my-2 my-lg-0">
+    <input class="form-control mr-sm-2" id="searchTerm" type="search" placeholder="Search music!" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" id="search" type="button">Search</button>
+  </div> <ul class="navbar-nav ml-md-auto">
     <li class="nav-item">
       <a class="nav-item nav-link mr-md-2" href="#" id="logout" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
         Logout
@@ -39,7 +45,7 @@ export const NavBar = (title, links = [], loggedIn = false) => {
   root.append(nav);
 };
 
-export const Card = (title, id, description, image, rootContainer) => {
+export const Card = (title, id, description, image, url='', rootContainer) => {
   const divCol = document.createElement('div');
   divCol.className = 'col';
   const skeleton = `
@@ -48,7 +54,7 @@ export const Card = (title, id, description, image, rootContainer) => {
     <div class="card-body">
       <h5 class="card-title">${title}</h5>
       <p class="card-text">${description || ''}</p>
-      <a class="btn btn-primary"  data-toggle="modal" data-target="#${id}">Escuchar!</a>
+      <a class="btn btn-primary"  data-toggle="modal" href="${url}" target="_blank">Escuchar!</a>
     </div>
   </div>`;
 

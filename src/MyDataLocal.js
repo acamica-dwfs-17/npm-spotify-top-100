@@ -12,4 +12,10 @@ export default class MyDataLocal {
         if(token)
             return JSON.parse(token);
     }
+
+    getRefreshToken() {
+        let token = this.getToken();
+        if(token)
+            return token.refresh_token;
+    }
 };
