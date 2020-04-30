@@ -22,7 +22,7 @@
   "dependencies": {
     "babel-polyfill": "^6.26.0",
     "bootstrap": "^4.4.1",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "popper.js": "^1.16.0",
     "query-string": "^6.9.0",
     "spotify-web-api-js": "^1.2.0"
